@@ -17,8 +17,7 @@ export class PrismaAccountRepository implements AccountRepository {
   async create(accountRegisterDto: AccountRegisterDto):Promise<User | null> {
     const createAccount = await this.prisma.user.create({
       data: {
-        name: accountRegisterDto.name,
-        lastname: accountRegisterDto.lastname,
+        username: accountRegisterDto.username,
         email: accountRegisterDto.email,
         password: accountRegisterDto.password,
         created_at: new Date(accountRegisterDto.created_at)
