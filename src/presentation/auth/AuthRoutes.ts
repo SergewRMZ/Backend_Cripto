@@ -21,6 +21,10 @@ export class AuthRoutes {
     const authController = new AuthController(accountService);
     router.post('/register', authController.registerUser);
     router.post('/login', authController.loginUser);
+    router.get('/validate-email/:token', authController.validateEmail);
+    router.post('/send-reset-password', authController.sendEmailResetPassword);
+    router.post('/reset-password/:token', authController.resetPassword);
+
     return router;
   }
 }

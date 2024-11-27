@@ -26,7 +26,7 @@ export class AccountService {
       await this.sendEmailValidationLink(account.email);
       const { password, ...rest } = AccountEntity.fromObject(account);
 
-      const token = await JwtAdapter.generateToken({ id: account.id });
+      const token = await JwtAdapter.generateToken({ id: account.id, email: account.email });
       if(!token) throw CustomError.internalServer('Error while creating JWT');
       return {
         account: rest,
@@ -56,6 +56,49 @@ export class AccountService {
     }
   }
 
+  public sendResetPasswordLink = async (email: string) => {
+    const user = await this.prismaAccountRepository.findByEmail(email);
+    if(!user) throw CustomError.badRequest('El correo no está registrado');
+
+    const token = await JwtAdapter.generateToken({ email: user.email }, '10m');
+    if(!token) throw CustomError.internalServer('Error al generar el token');
+
+    const resetLink = `${envs.WERSERVICE_URL}/auth/reset-password/${token}`;
+    const html = `
+      <h1>Solicitud de restablecimiento de contraseña</h1>
+      <p>Haz click en el siguiente enlace para restablecer tu contraseña. Este enlace es válido solo por 5 minutos</p>
+      <a href="${resetLink}">Reestablecer Contraseña</a>
+    `;
+
+    const options = {
+      to: email,
+      subject: 'Reestablece tu contraseña',
+      htmlBody: html
+    };
+
+    const isSent = await this.emailService.sendEmail(options);
+    if(!isSent) throw CustomError.internalServer('Error enviando el correo');
+    return true;
+  }
+
+  public resetPassword = async (token: string, newPassword: string) => {
+    const payload = await JwtAdapter.validateToken(token);
+    if(!payload) throw CustomError.unauthorized('Token invalido o expirado');
+
+    // Validar nueva contraseña
+    if(!regularExps.password.test(newPassword)) throw CustomError.badRequest('La contraseña debe contener mayúsculas, minúsculas, números y por lo menos un caracter especial');
+    const { email } = payload as { email: string };
+    if(!email) throw CustomError.internalServer('El correo no ha sido encontrado, el token ha sido alterado');
+
+    const user = await this.prismaAccountRepository.findByEmail(email);
+    if(!user) throw CustomError.badRequest('El usuario no existe');
+
+    const hashedNewPassword = bcrypAdapter.hash(newPassword);
+    await this.prismaAccountRepository.updatePassword(user.id, hashedNewPassword);
+
+    return true;
+  }
+
   private sendEmailValidationLink = async (email: string) => {
     const token = await JwtAdapter.generateToken({ email });
     if(!token) throw CustomError.internalServer('Error getting token');
@@ -73,7 +116,7 @@ export class AccountService {
     };
 
     const isSent = await this.emailService.sendEmail(options);
-    if(!isSent) throw CustomError.internalServer('Error sending email');
+    if(!isSent) throw CustomError.internalServer('Error enviando el correo');
     return true;
   }
 

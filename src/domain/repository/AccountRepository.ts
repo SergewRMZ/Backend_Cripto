@@ -7,4 +7,5 @@ export abstract class AccountRepository {
   abstract findByEmail(email: string): Promise<User | null>;
   abstract create(accountRegisterDto: AccountRegisterDto): Promise<User | null>;
   abstract updateEmailValidate(email: string, updateData: Partial<User>): Promise<User | null>;
+  abstract updatePassword(userId: number, newPassword: string): Promise<void>;
 }
