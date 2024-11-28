@@ -132,4 +132,11 @@ export class AccountService {
     await this.prismaAccountRepository.updateEmailValidate(email, { email_validated: true });    
     return true;
   } 
+
+  public validateToken = async (token: string) => {
+    const payload = await JwtAdapter.validateToken(token);
+    if(!payload) throw CustomError.unauthorized('Token invalido o expirado');
+    return true;
+  }
+
 }

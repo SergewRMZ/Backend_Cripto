@@ -56,4 +56,12 @@ export class AuthController {
       .then(() => res.status(200).json({ message: 'Contraseña restablecida correctamente'}))
       .catch(error => this.handleError(error, res));
   }
+
+  public validateToken = (req:Request, res:Response) => {
+    const { token } = req.params;
+    console.log(token);  // This is a security issue, never log tokens
+    this.accountService.validateToken(token)
+      .then((user) => res.json(user))
+      .catch(error => this.handleError(error, res));
+  }
 }
