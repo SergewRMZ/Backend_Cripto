@@ -6,7 +6,7 @@ import { AccountLoginDto } from '../../domain/dtos/auth/AccountLoginDto';
 import { error } from 'console';
 
 export class AuthController {
-  constructor(public readonly accountService: AccountService) {}
+  constructor(private readonly accountService: AccountService) {}
 
   private handleError = (error: unknown, res: Response) => {
     if (error instanceof CustomError) {
@@ -18,7 +18,7 @@ export class AuthController {
   public registerUser = (req: Request, res: Response) => {
     const [error, accountRegisterDto] = AccountRegisterDto.create(req.body);
     if (error) return res.status(400).json({ error });
-    
+    console.log(accountRegisterDto);
     this.accountService.registerUser(accountRegisterDto!)
       .then((user) => res.json(user))
       .catch(error => this.handleError(error, res));
@@ -51,17 +51,23 @@ export class AuthController {
   public resetPassword = (req:Request, res:Response) => {
     const { token } = req.params;
     const { newPassword } = req.body;
-    console.log(token, newPassword);
     this.accountService.resetPassword(token, newPassword)
-      .then(() => res.status(200).json({ message: 'Contraseña restablecida correctamente'}))
+      .then(() => res.status(200).json({ message: 'Contraseña reestablecida correctamente', verifyPassword: true }))
+      .catch(error => this.handleError(error, res));
+  }
+
+  public validateVerificationCode = (req:Request, res:Response) => {
+    const { token } = req.params;
+    const { code } = req.body;
+    this.accountService.verifyResetCode(token, code)
+      .then(() => res.status(200).json({ message: 'Código de verificación válidado correctamente', verifyCode: true}))
       .catch(error => this.handleError(error, res));
   }
 
   public validateToken = (req:Request, res:Response) => {
     const { token } = req.params;
-    console.log(token);  // This is a security issue, never log tokens
     this.accountService.validateToken(token)
-      .then((user) => res.json(user))
+      .then(() => res.status(200).json({ message: 'Token válido', authenticated: true }))
       .catch(error => this.handleError(error, res));
   }
 }

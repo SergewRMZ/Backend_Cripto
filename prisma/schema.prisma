@@ -16,5 +16,16 @@ model User {
   email      String   @unique                     
   password   String                               
   email_validated Boolean @default(false)     
-  created_at DateTime @default(now())            
+  created_at DateTime @default(now())  
+  resetCodes PasswordResetCode[]          
+}
+
+model PasswordResetCode {
+  id Int @id @default(autoincrement())
+  code String
+  expires_at DateTime
+  used  Boolean @default(false)
+  userId Int 
+  
+  user User @relation(fields: [userId], references: [id])
 }
