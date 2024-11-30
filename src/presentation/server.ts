@@ -1,6 +1,7 @@
 import express, { Router } from "express";
 import path from "path";
 import cors from "cors";
+import { envs } from "../config";
 
 interface Options {
   port: number;
@@ -26,7 +27,11 @@ export class Server {
     //* Middlewares
     this.app.use(express.json()); // raw
     this.app.use(express.urlencoded({ extended: true })); // x-www-form-urlencoded
-    this.app.use(cors());
+    const corsOptions = {
+      origin: envs.CLIENT_URL,
+      methods: ['GET', 'POST']
+    }
+    this.app.use(cors(corsOptions));
 
     //* Public Folder
     this.app.use(express.static(this.publicPath));

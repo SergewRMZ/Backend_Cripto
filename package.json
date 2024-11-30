@@ -2,7 +2,7 @@
   "name": "hydrasense_backend",
   "version": "1.0.0",
   "description": "Backend de aplicación para el monitoreo en tiempo real de la temperatura corporal e hidratación",
-  "main": "index.js",
+  "main": "dist/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsnd --respawn --clear src/app.ts",
