@@ -10,5 +10,6 @@ export const envs = {
   MAILER_SERVICE: get('MAILER_SERVICE').required().asString(),
   MAILER_EMAIL: get('MAILER_EMAIL').required().asString(),
   MAILER_SECRET_KEY: get('MAILER_SECRET_KEY').required().asString(),
-  WERSERVICE_URL: get('WEBSERVICE_URL').required().asString()
+  WERSERVICE_URL: get('WEBSERVICE_URL').required().asString(),
+  CLIENT_URL: get('CLIENT_URL').required().asString()
 }

@@ -79,7 +79,7 @@ export class AccountService {
     if(!token) throw CustomError.internalServer('Error al generar el token');
 
     
-    const resetLink = `http://localhost:5173/new-pass/${token}`;
+    const resetLink = `${envs.CLIENT_URL}/new-pass/${token}`;
 
     // Almacenar el registro en la base de datos.
     this.prismaPasswordResetRepository.saveVerificationCode(
